@@ -7,7 +7,7 @@ This repo is a **[Claude Code plugin marketplace](https://docs.claude.com/en/doc
 ## Quick start (Claude Code)
 
 ```
-/plugin marketplace add jacobxu1972/issuingskills
+/plugin marketplace add CoshineSolutions/issuingskills
 /plugin install coshine-card-issuing@coshine-plugins
 ```
 
@@ -18,7 +18,7 @@ That's it — restart Claude Code and the 4 skills (main router, auth, quickstar
 Clone and run the installer; symlinks the skills into `~/.claude/skills/` **and** `~/.agents/skills/` (shared standard used by Gemini CLI and OpenAI Codex CLI):
 
 ```bash
-git clone https://github.com/jacobxu1972/issuingskills.git
+git clone https://github.com/CoshineSolutions/issuingskills.git
 cd issuingskills
 bash scripts/install_skills.sh          # installs to both
 bash scripts/install_skills.sh --claude-only
