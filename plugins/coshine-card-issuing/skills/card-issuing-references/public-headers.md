@@ -1,26 +1,26 @@
-# Public Headers（公共请求/响应头）
+# Public Headers (Common Request/Response Body Fields)
 
-每个业务 API 的 **请求 body** 和 **响应 body** 都包含下列 9 个公共字段。
+Every business API **request body** and **response body** contains the following 9 common fields.
 
 ## Request / Response Body Header Fields
 
-| # | 字段 | 必填 | 格式 | 说明 |
+| # | Field | Required | Format | Description |
 |---|---|---|---|---|
-| 1 | `participantId` | 必填 | String ≤15 | 由 Coshine 分配 |
-| 2 | `tranBranch` | 必填 | String ≤6 | 由 Coshine 分配 |
-| 3 | `tranChnl` | 必填 | 2 chars | 交易渠道：`06=CMS` / `07=WEB` / `08=APP` / `09=ACS` / `10=UMPS` |
-| 4 | `tranCode` | 可选 | String ≤6 | 可用于自有操作码标注 |
-| 5 | `tranDate` | 必填 | `YYYYMMDD` | 交易日期 |
-| 6 | `tranTime` | 必填 | `HHMISS` | 交易时间 |
-| 7 | `tranId` | 必填 | String ≤32 | 全局唯一流水号——出错时请附上它联系 Coshine |
-| 8 | `tellerNo` | 可选 | String ≤32 | 操作员 ID |
-| 9 | `terminalNo` | 可选 | String ≤15 | 终端 ID |
+| 1 | `participantId` | Required | String ≤15 | Assigned by Coshine |
+| 2 | `tranBranch` | Required | String ≤6 | Assigned by Coshine |
+| 3 | `tranChnl` | Required | 2 chars | Transaction channel: `06=CMS` / `07=WEB` / `08=APP` / `09=ACS` / `10=UMPS` |
+| 4 | `tranCode` | Optional | String ≤6 | Optional internal operation code |
+| 5 | `tranDate` | Required | `YYYYMMDD` | Transaction date |
+| 6 | `tranTime` | Required | `HHMISS` | Transaction time |
+| 7 | `tranId` | Required | String ≤32 | Globally unique transaction ID — include this when reporting issues to Coshine |
+| 8 | `tellerNo` | Optional | String ≤32 | Operator / teller ID |
+| 9 | `terminalNo` | Optional | String ≤15 | Terminal ID |
 
-## 响应额外字段
+## Additional Response Fields
 
-| 字段 | 说明 |
+| Field | Description |
 |---|---|
-| `responseCode` | 2 字符业务响应码，见 `error-codes.md` |
-| `responseDesc` | ≤120 字符描述 |
+| `responseCode` | 2-character business response code — see `error-codes.md` |
+| `responseDesc` | Response description, ≤120 characters |
 
-响应的 1-9 号字段**原样回显**请求侧（除 `tellerNo` / `terminalNo` 可能省略）。
+Fields 1–9 are **echoed back** from the request in the response (except `tellerNo` / `terminalNo`, which may be omitted).

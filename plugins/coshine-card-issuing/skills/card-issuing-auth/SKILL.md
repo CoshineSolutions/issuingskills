@@ -1,22 +1,22 @@
 ---
 name: card-issuing-auth
-description: EastPay 发卡系统认证指南 — Bearer Token + timestamp（sandbox 当前模式），覆盖 HTTP 头、Body 格式、未来 OAuth2/JWE 迁移路径
+description: EastPay card-issuing authentication guide — static Bearer Token + timestamp (current sandbox mode), covering HTTP headers, body format, and the future OAuth2/JWE migration path
 ---
 
 # EastPay Card Issuing — Auth
 
-## 当前 sandbox 认证方式（简化模式）
+## Current Sandbox Authentication (Simplified Mode)
 
-所有 API 使用 **静态 Bearer Token** + **timestamp header** + **明文 JSON body**。
+All APIs use a **static Bearer Token** + **timestamp header** + **plaintext JSON body**.
 
-### 每次请求需要发送的三个东西
+### What to send on every request
 
-1. HTTP Header `Authorization: Bearer <TOKEN>`——TOKEN 由 Coshine 分配，在一段时期内保持不变
-2. HTTP Header `timestamp: <unix_秒>`——10 位整数字符串
+1. HTTP Header `Authorization: Bearer <TOKEN>` — TOKEN is assigned by Coshine; it remains valid for an extended period
+2. HTTP Header `timestamp: <unix_seconds>` — 10-digit integer string
 3. HTTP Header `Content-Type: application/json; charset=UTF-8`
-4. Body：**明文** JSON（无 JWE 加密）；包含 9 个公共头字段（见 `card-issuing-references/public-headers.md`）+ API 特定字段
+4. Body: **plaintext** JSON (no JWE encryption); contains 9 public header fields (see `card-issuing-references/public-headers.md`) plus API-specific fields
 
-### 最小请求示例
+### Minimal request example
 
 ```
 POST https://march.sandbox.efaka.net/card-api/cardmgr/cardApply
@@ -39,37 +39,37 @@ Content-Type: application/json; charset=UTF-8
 }
 ```
 
-## AI 应遵守的行为规则
+## AI Behavior Rules
 
-1. **绝不编造** Bearer Token、`participantId`、`tranBranch` 的具体值——让客户从 Coshine 获取
-2. 若客户没有 Token，引导客户：
-   > "请联系 Coshine（你的对接人），索取 sandbox Bearer Token、`participantId`、`tranBranch`。"
-3. 响应 HTTP 401/403 时，**不要自动重试**——静态 Token 刷新无效；检查 Token 是否过期或被 Coshine 撤销
-4. 不要在任何生成的代码中硬编码 Token——从环境变量或配置文件读取
+1. **Never fabricate** Bearer Token, `participantId`, or `tranBranch` values — direct the user to obtain them from Coshine
+2. If the user does not have a token, guide them:
+   > "Please contact your Coshine integration lead to obtain the sandbox Bearer Token, `participantId`, and `tranBranch`."
+3. On HTTP 401/403, **do not auto-retry** — static tokens cannot be refreshed; check whether the token has expired or been revoked by Coshine
+4. Never hard-code a token in generated code — read it from an environment variable or config file
 
-## 响应解析
+## Response Parsing
 
-- HTTP 状态码检查：见 `card-issuing-references/error-codes.md`
-- 成功 HTTP 200 后，必须再检查业务字段 `responseCode`：`"00"` 才是真成功
+- Check HTTP status code first: see `card-issuing-references/error-codes.md`
+- After HTTP 200, you must also check the business field `responseCode`: only `"00"` means true success
 
-## 未来迁移路径：OAuth2 + JWE
+## Future Migration Path: OAuth2 + JWE
 
-Coshine 的官方文档（PDF + developer portal）描述了另一套认证模式，是**目标形态**，当前 sandbox **未启用**：
+Coshine's official documentation (PDF + developer portal) describes an alternative auth mode that is the **target architecture** — not yet enabled in the current sandbox:
 
-- **OAuth2 `private_key_jwt` + `client_credentials`**：客户端用 EC 私钥签名 `client_assertion`（JWT, ES256），向 token endpoint 换取 60 分钟 access token
-- **Body 加密**：`RSA-OAEP-256` 包 AES 128-GCM（JWE），用 EastPay RSA 公钥加密请求，用客户端 RSA 私钥解密响应
+- **OAuth2 `private_key_jwt` + `client_credentials`**: the client signs a `client_assertion` JWT (ES256) with an EC private key and exchanges it for a 60-minute access token
+- **Body encryption**: `RSA-OAEP-256` wrapping AES-128-GCM (JWE); requests encrypted with EastPay's RSA public key, responses decrypted with the client's RSA private key
 
-**何时迁移？** 由 Coshine 通知；或客户明确要求使用 OAuth2/JWE。迁移时：
+**When to migrate:** only when notified by Coshine, or when the user explicitly requests OAuth2/JWE. Migration steps:
 
-1. 向 Coshine 索取 token endpoint URL、scope、EastPay RSA 公钥
-2. 客户端生成 EC 密钥对（ES256）和 RSA 密钥对（RSA-OAEP-256），将公钥提交给 Coshine
-3. 参考官方 PDF 的 Authentication 章节实现 JWT 签名 + JWE 加解密
-4. 保留原 Bearer Token 模式代码作为 fallback 或测试
+1. Obtain the token endpoint URL, scope, and EastPay RSA public key from Coshine
+2. Generate an EC key pair (ES256) and an RSA key pair (RSA-OAEP-256); submit public keys to Coshine
+3. Implement JWT signing + JWE encrypt/decrypt per the Authentication section of the official PDF
+4. Keep the original Bearer Token mode as a fallback or for testing
 
-本 Skill 当前**不**提供 OAuth2/JWE 代码生成，直至 Coshine 明确要求。
+This skill does **not** provide OAuth2/JWE code generation until Coshine explicitly requires it.
 
-## 参考
+## References
 
-- `card-issuing-references/public-headers.md` — 9 字段公共头详解
-- `card-issuing-references/error-codes.md` — HTTP 和业务错误码
-- `card-issuing-references/samples/` — 完整请求/响应样例
+- `card-issuing-references/public-headers.md` — 9-field public body header details
+- `card-issuing-references/error-codes.md` — HTTP and business error codes
+- `card-issuing-references/samples/` — complete request/response JSON samples

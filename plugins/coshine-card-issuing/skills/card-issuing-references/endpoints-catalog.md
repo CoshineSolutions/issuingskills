@@ -1,29 +1,29 @@
 # Endpoints Catalog
 
-**API Base URL:** `https://march.sandbox.efaka.net/card-api`（sandbox；生产请向 Coshine 确认）
+**API Base URL:** `https://march.sandbox.efaka.net/card-api` (sandbox; confirm production URL with Coshine)
 
-所有请求：`POST`，body 明文 JSON，带 `Authorization: Bearer <token>` + `timestamp` header。
+All requests use `POST`, plaintext JSON body, with `Authorization: Bearer <token>` + `timestamp` headers.
 
-## MVP 覆盖的 3 个端点
+## MVP — 3 Covered Endpoints
 
-| API 名 | 路径 | 说明 |
+| API Name | Path | Description |
 |---|---|---|
-| CardApplication | `/cardmgr/cardApply` | 开卡 |
-| CustomerCardInfoInquiry | `/custmgr/inquiryCardListByCIF` | 按 `customerId` 查卡列表 |
-| CardActivation | `/cardmgr/cardActivate` | 激活卡片 |
+| CardApplication | `/cardmgr/cardApply` | Apply for a new card |
+| CustomerCardInfoInquiry | `/custmgr/inquiryCardListByCIF` | List cards by `customerId` |
+| CardActivation | `/cardmgr/cardActivate` | Activate a card |
 
-## 完整 API 目录（引用 PDF v4.3.17 + Postman 实际命名）
+## Full API Catalog (from PDF v4.3.17 + Postman)
 
 ### Application
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | CardApplication | `/cardmgr/cardApply` |
-| CorporateCardApplication | `/cardmgr/corpCardApply`（待确认） |
+| CorporateCardApplication | `/cardmgr/corpCardApply` (to be confirmed) |
 
 ### Customer
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | CustomerCardInfoInquiry | `/custmgr/inquiryCardListByCIF` |
 | CustomerAccountInfoInquiry | `/custmgr/inquiryAcctListByCIF` |
@@ -31,13 +31,13 @@
 
 ### Account
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | AcctLinkage | `/acctmgr/acctLinkage` |
 
 ### Card
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | CardInfoInquiry | `/cardmgr/inquiryCardInfoByToken` |
 | CardActivation | `/cardmgr/cardActivate` |
@@ -54,25 +54,25 @@
 
 ### PIN
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | GeneratePublicPinKey | `/paramgr/generatePublicPinKey` |
 | PINReset | `/cardmgr/pinReset` |
 | PINChange | `/cardmgr/pinChange` |
 | PINVerify | `/cardmgr/pinVerify` |
 
-### Transaction（ISO-8583）
+### Transaction (ISO-8583)
 
-| API | 路径 |
+| API | Path |
 |---|---|
 | tran8583 | `/tranmgr/tran8583` |
 
-### JSON 风格的 Transaction API
+### JSON-style Transaction APIs
 
-**待确认**：LoadFund / BalanceInquiry / TransferFund / Purchase / Refund / Reversal 等在 sandbox 的 REST URL 未在现有 Postman 暴露；按 PDF v4.3.17 模块命名规律推测可能位于 `/tranmgr/<camelCase>`，使用时请向 Coshine 确认准确路径。
+**To be confirmed:** LoadFund / BalanceInquiry / TransferFund / Purchase / Refund / Reversal and similar APIs are not exposed in the current Postman collection. Based on the naming pattern in PDF v4.3.17, they likely reside under `/tranmgr/<camelCase>` — confirm the exact paths with Coshine before integrating.
 
-### PDF v4.3.17 相对原设计文档补齐的 API
+### Additional APIs in PDF v4.3.17
 
 `CardFaceInquiry` / `CardExpiryDateUpdate` / `CustomerLinkage` / `CardInfoUpdate` / `CardNoBlock` / `BusinessFlagInquiry` / `BusinessOnOff` / `DropDownListInquiry` / `InquiryCardProduct` / `Verification` / `FileDownload` / `ConvertPrepaidtoDebit`
 
-各自的路径需向 Coshine 确认。
+Paths for these APIs must be confirmed with Coshine.

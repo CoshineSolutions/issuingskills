@@ -1,35 +1,35 @@
 # Error Codes
 
-## 业务响应码（body.responseCode）
+## Business Response Codes (body.responseCode)
 
-| 码 | 含义 | AI 应引导的排查 |
+| Code | Meaning | Troubleshooting guidance |
 |---|---|---|
-| `00` | 成功 | — |
-| `01` | 无效 participant | 检查 `participantId`；联系 Coshine 核对 |
-| `02` | 无效卡号 | `cardNumber` 错或卡不存在 |
-| `03` | 无效卡状态 | 卡已销卡/未激活；查 `data-dictionary.md` 的 cardStatus 机 |
-| `04` | 无效 `cardToken` | token 格式或值错误 |
-| `10` | 受限访问，无数据返回 | 客户没有该 API 权限；找 Coshine 开通 |
-| `24` | PIN block 格式错误 | RSA 加密 PIN 流程错——查 `GeneratePublicPinKey` 流程 |
-| `55` | PIN 验证失败 | PIN 值错 |
-| `99` | 未知数据检索错误 | 记录 `tranId` 联系 Coshine 技术支持 |
+| `00` | Success | — |
+| `01` | Invalid participant | Check `participantId`; verify with Coshine |
+| `02` | Invalid card number | `cardNumber` is wrong or card does not exist |
+| `03` | Invalid card status | Card is closed or not yet activated; check `cardStatus` in `data-dictionary.md` |
+| `04` | Invalid `cardToken` | Token format or value is incorrect |
+| `10` | Restricted access, no data returned | Customer account lacks permission for this API; ask Coshine to grant access |
+| `24` | PIN block format error | RSA-encrypted PIN flow is wrong — check the `GeneratePublicPinKey` flow |
+| `55` | PIN verification failed | PIN value is incorrect |
+| `99` | Unknown data retrieval error | Record `tranId` and contact Coshine technical support |
 
-## HTTP 状态码
+## HTTP Status Codes
 
-| 码 | 含义 | AI 应引导的排查 |
+| Code | Meaning | Troubleshooting guidance |
 |---|---|---|
-| `200` | Success | 继续看业务 `responseCode` |
-| `307` | Temporary Redirect | 按 Location 沿用原 method 重发 |
-| `400` | Bad Request | JSON/必填/枚举；重点查公共头 9 字段 |
-| `401` | Unauthorized | `Authorization` header 缺失或格式错 |
-| `403` | Invalid access token | Bearer 无效——找 Coshine 要新 token |
-| `404` | Not Found | URL 路径拼错或 API_BASE_URL 错 |
-| `500` | Internal Server Error | 上报 Coshine，附 `tranId` 和时间 |
-| `502` | Bad Gateway | 同上 |
+| `200` | Success | Check business `responseCode` in the response body |
+| `307` | Temporary Redirect | Re-send request to the URL in the `Location` header using the original method |
+| `400` | Bad Request | Check JSON format, required fields, and enum values; focus on the 9 public header fields |
+| `401` | Unauthorized | `Authorization` header is missing or malformed |
+| `403` | Invalid access token | Bearer token is invalid — request a new token from Coshine |
+| `404` | Not Found | URL path is misspelled or `API_BASE_URL` is wrong |
+| `500` | Internal Server Error | Report to Coshine with `tranId` and request timestamp |
+| `502` | Bad Gateway | Same as above |
 
-## AI 应主动暂停并提问的情景
+## Situations Where AI Should Pause and Ask
 
-1. 客户未提供 Bearer token → **不要编造**，引导客户联系 Coshine
-2. 客户未提供 `participantId` / `tranBranch` → 不要用示例值（`100000` / `GTW100000`）直接提交
-3. 响应 `99` → 要求客户提供 `tranId` 联系 Coshine
-4. 响应 `10` → 检查客户账户是否已被 Coshine 授予该 API 权限
+1. User has not provided a Bearer token → **do not fabricate one** — direct the user to contact Coshine
+2. User has not provided `participantId` / `tranBranch` → do not submit example values (`100000` / `GTW100000`) as real credentials
+3. Response code `99` → ask the user to provide `tranId` and contact Coshine support
+4. Response code `10` → check whether the user's account has been granted permission for the API by Coshine

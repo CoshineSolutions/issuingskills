@@ -1,88 +1,88 @@
 # Data Dictionary
 
-## cardFlag（卡标识）
+## cardFlag (Card Type)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `V` | 虚拟卡 (Virtual) |
-| `P` | 实体卡 (Physical) |
+| `V` | Virtual card |
+| `P` | Physical card |
 
-## cardProdCode（卡产品代码）
+## cardProdCode (Card Product Code)
 
-**由 Coshine 按客户分配。** 常见值：
+**Assigned by Coshine per customer.** Common sandbox values:
 
-| Sandbox 值 | 卡组织 |
+| Sandbox value | Card network |
 |---|---|
 | `2201` | Visa |
 | `5200` | Mastercard |
 
-> 原官方文档中 `1000=Debit` / `2000=Credit` 是产品大类表达，与 sandbox 实际使用的客户分配码不同。**以 Coshine 分配值为准。**
+> The official PDF uses `1000=Debit` / `2000=Credit` as product category notation — these differ from the customer-specific codes assigned for actual sandbox use. **Always use the value Coshine assigns.**
 
-## cardProductType（卡产品类型）
+## cardProductType (Card Product Type)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `C` | 信用卡 (Credit) |
-| `D` | 借记卡 (Debit) |
-| `G` | 礼品卡 (Gift) |
-| `P` | 预付卡 (Prepaid) |
-| `B` | 商务卡 (Business) |
-| `R` | 企业卡 (Corporate) |
+| `C` | Credit |
+| `D` | Debit |
+| `G` | Gift |
+| `P` | Prepaid |
+| `B` | Business |
+| `R` | Corporate |
 
-## cardStatus（卡状态）
+## cardStatus (Card Status)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `N` | 新卡（未激活） |
-| `U` | 正常使用中 |
-| `D` | 注销 |
-| `L` | 挂失 |
-| `P` | 待处理 |
-| `O` | 打开 |
-| `X` | 已销卡 |
-| `E` | **已过期**（PDF v4.3.13 新增） |
+| `N` | New (not yet activated) |
+| `U` | Active (in use) |
+| `D` | Cancelled |
+| `L` | Lost/blocked |
+| `P` | Pending |
+| `O` | Open |
+| `X` | Closed |
+| `E` | **Expired** (added in PDF v4.3.13) |
 
-## cardOptFlag（卡操作标识，CardStatusUpdate）
+## cardOptFlag (Card Operation Flag — CardStatusUpdate)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `B` | 挂失 |
-| `C` | 解挂 |
-| `D` | 冻结 |
-| `E` | 解冻 |
-| `G` | PIN 锁定 |
-| `H` | PIN 解锁 |
+| `B` | Block (report lost) |
+| `C` | Unblock |
+| `D` | Freeze |
+| `E` | Unfreeze |
+| `G` | PIN lock |
+| `H` | PIN unlock |
 
-## tranChnl（交易渠道）
+## tranChnl (Transaction Channel)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `06` | CMS（卡管理系统） |
+| `06` | CMS (Card Management System) |
 | `07` | WEB |
 | `08` | APP |
 | `09` | ACS |
 | `10` | UMPS |
 
-## custIdType（证件类型）
+## custIdType (ID Document Type)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `D` | 驾照 |
-| `P` | 护照（默认） |
-| `I` | 国民身份证 |
+| `D` | Driver's license |
+| `P` | Passport (default) |
+| `I` | National ID card |
 | `U` | UMID |
-| `Z` | 邮政 ID |
-| `V` | 选民 ID |
+| `Z` | Postal ID |
+| `V` | Voter's ID |
 | `S` | SSS |
 | `T` | TIN |
-| `O` | 其他 |
+| `O` | Other |
 
-## Replacement reasonCode（换卡原因码）
+## Replacement reasonCode (Card Replacement Reason)
 
-| 值 | 含义 |
+| Value | Meaning |
 |---|---|
-| `001` | 卡损坏 |
-| `002` | 卡丢失 |
-| `003` | 卡被盗 |
-| `004` | 卡过期 |
-| `999` | 其他 |
+| `001` | Damaged card |
+| `002` | Lost card |
+| `003` | Stolen card |
+| `004` | Expired card |
+| `999` | Other |

@@ -1,111 +1,111 @@
 ---
 name: card-issuing-quickstart
-description: EastPay 发卡系统端到端最小闭环对接指南 — 3 步开卡流程（Application → Inquiry → Activation）
+description: EastPay card-issuing end-to-end minimum integration guide — 3-step card open flow (Application → Inquiry → Activation)
 ---
 
-# EastPay Card Issuing — Quickstart（3 步最小闭环）
+# EastPay Card Issuing — Quickstart (3-Step Minimum Loop)
 
-## 前置条件
+## Prerequisites
 
-从 Coshine 获取以下 5 项：
+Obtain the following 5 items from Coshine:
 
-1. `API_BASE_URL`（sandbox：`https://march.sandbox.efaka.net/card-api`）
+1. `API_BASE_URL` (sandbox: `https://march.sandbox.efaka.net/card-api`)
 2. Bearer Token
 3. `participantId`
 4. `tranBranch`
-5. `cardProdCode`（sandbox 常见：Visa=`2201` / Mastercard=`5200`）
+5. `cardProdCode` (sandbox common values: Visa=`2201` / Mastercard=`5200`)
 
-配置好认证（见 `card-issuing-auth`）后开始：
+Set up authentication first (see `card-issuing-auth`), then proceed:
 
-## 3 步流程
+## 3-Step Flow
 
 ```
-Step 1: 开卡  (cardApply)            → 拿到 cardToken + expiryDate + CVV2
-Step 2: 读查  (inquiryCardListByCIF) → 验证按 customerId 能找到新卡
-Step 3: 激活  (cardActivate)         → 卡进入可用状态 (responseCode="00")
+Step 1: Apply   (cardApply)             → receive cardToken + expiryDate + CVV2
+Step 2: Inquire (inquiryCardListByCIF)  → verify the new card is visible by customerId
+Step 3: Activate (cardActivate)         → card moves to active state (responseCode="00")
 ```
 
 ### Step 1 · CardApplication
 
-**路径：** `POST {API_BASE_URL}/cardmgr/cardApply`
+**Path:** `POST {API_BASE_URL}/cardmgr/cardApply`
 
-**必填字段（虚拟卡，最小集）：**
+**Required fields (virtual card, minimal set):**
 
-| 字段 | 说明 |
+| Field | Description |
 |---|---|
-| `cardFlag` | `V`（虚拟）或 `P`（实体） |
-| `cardProdCode` | 来自 Coshine 分配 |
-| `customerId` | 客户自定义 CIF（≤32 chars） |
-| `custIdType` | 证件类型，见 data-dictionary |
-| `custIdNo` | 证件号 |
+| `cardFlag` | `V` (virtual) or `P` (physical) |
+| `cardProdCode` | Assigned by Coshine |
+| `customerId` | Your customer identifier / CIF (≤32 chars) |
+| `custIdType` | ID document type — see data-dictionary |
+| `custIdNo` | ID document number |
 
-**响应关键字段：** `cardToken`（后续所有操作的引用）、`expiryDate`（YYMM）、`CVV2`
+**Key response fields:** `cardToken` (reference handle for all subsequent operations), `expiryDate` (YYMM format), `CVV2`
 
-> 实体卡（`cardFlag=P`）还需 `cardEmbossName` + 邮寄地址字段；见 `card-issuing-references/endpoints-catalog.md`。
+> Physical cards (`cardFlag=P`) also require `cardEmbossName` and mailing address fields — see `card-issuing-references/endpoints-catalog.md`.
 
-**样例：** `card-issuing-references/samples/card_application_request.json` / `card_application_response.json`
+**Samples:** `card-issuing-references/samples/card_application_request.json` / `card_application_response.json`
 
 ### Step 2 · CustomerCardInfoInquiry
 
-**路径：** `POST {API_BASE_URL}/custmgr/inquiryCardListByCIF`
+**Path:** `POST {API_BASE_URL}/custmgr/inquiryCardListByCIF`
 
-**必填：** `customerId`（Step 1 用的那个）
+**Required:** `customerId` (same value used in Step 1)
 
-**响应关键字段：** `cardList[]`——断言其中包含 Step 1 拿到的 `cardToken`。
+**Key response field:** `cardList[]` — assert it contains the `cardToken` from Step 1.
 
-**用途：** 验证"按 CIF 能读回刚开的卡"；这是一次读路径验证，也常用于列出客户名下所有卡。
+**Purpose:** Validates the read path ("card is retrievable by CIF"); also commonly used to list all cards under a customer.
 
-**样例：** `card-issuing-references/samples/customer_card_info_inquiry_*.json`
+**Samples:** `card-issuing-references/samples/customer_card_info_inquiry_*.json`
 
 ### Step 3 · CardActivation
 
-**路径：** `POST {API_BASE_URL}/cardmgr/cardActivate`
+**Path:** `POST {API_BASE_URL}/cardmgr/cardActivate`
 
-**必填字段：**
+**Required fields:**
 
-| 字段 | 来源 |
+| Field | Source |
 |---|---|
-| `cardToken` | Step 1 响应 |
-| `expiryDate` | Step 1 响应 |
-| `CVV2` | Step 1 响应 |
-| `customerId` / `custIdType` / `custIdNo` | 持卡人身份校验 |
+| `cardToken` | Step 1 response |
+| `expiryDate` | Step 1 response |
+| `CVV2` | Step 1 response |
+| `customerId` / `custIdType` / `custIdNo` | Cardholder identity verification |
 
-**响应：** `responseCode == "00"` 即激活成功，卡从 `N` 转为 `U`。
+**Response:** `responseCode == "00"` means activation succeeded; card status transitions from `N` to `U`.
 
-**样例：** `card-issuing-references/samples/card_activation_*.json`
+**Samples:** `card-issuing-references/samples/card_activation_*.json`
 
-## 测试策略（协议层，语言无关）
+## Testing Strategy (Protocol-Level, Language-Agnostic)
 
-验证 3 步闭环的通用方式——用任意 HTTP 客户端（curl、Postman、任何语言的 HTTP 库）：
+Use any HTTP client (curl, Postman, or any language's HTTP library) to validate the 3-step loop:
 
-1. **字段层预检（无真凭证）**：根据 `card-issuing-references/samples/*_request.json` 组装 3 份请求体，带上 `Authorization: Bearer <任意字符串>` + `timestamp` header 打给 mock 服务或桩服务；断言：
-   - Step 1 响应含 `cardToken` / `expiryDate` / `CVV2`
-   - Step 2 响应的 `cardList[]` 中出现 Step 1 拿到的 `cardToken`
-   - Step 3 响应 `responseCode == "00"`
-2. **切真 sandbox**：把 `Bearer <TOKEN>`、`participantId`、`tranBranch` 换成 Coshine 分配的真实值，URL 前缀换成真 `API_BASE_URL`，按同样 3 步串行跑；任一步 `responseCode != "00"` 立即停，按 `card-issuing-references/error-codes.md` 排查。
-3. **语言无要求**：Bearer + 明文 JSON 不需要 JWT/JWE 计算；curl、Postman、httpx/requests、OkHttp、axios、Go net/http 等任一客户端都能直接对接。
+1. **Field-level pre-check (no real credentials):** Assemble 3 request bodies from `card-issuing-references/samples/*_request.json`, add `Authorization: Bearer <any-string>` + `timestamp` header, and send to a mock or stub server. Assert:
+   - Step 1 response contains `cardToken` / `expiryDate` / `CVV2`
+   - Step 2 response `cardList[]` includes the `cardToken` from Step 1
+   - Step 3 response `responseCode == "00"`
+2. **Switch to real sandbox:** Replace `Bearer <TOKEN>`, `participantId`, `tranBranch` with Coshine-assigned values and `API_BASE_URL` with the real base URL. Run the same 3-step sequence. Stop immediately on any `responseCode != "00"` and consult `card-issuing-references/error-codes.md`.
+3. **No language requirement:** Bearer Token + plaintext JSON requires no JWT/JWE computation; any HTTP client works — curl, Postman, httpx/requests, OkHttp, axios, Go net/http, etc.
 
-### 参考实现（Python，可选）
+### Reference Implementation (Python, optional)
 
-本仓库附带一套 **Python 参考实现**，仅作工程验证样本，不是协议要求：
+This repo ships a **Python reference implementation** for engineering validation only — it is not a protocol requirement:
 
-- `reference-impl/scripts/mock_server.py` — FastAPI 最小 mock，返回 `samples/` 的理想响应
-- `reference-impl/scripts/validate_quickstart.py` — CLI 串跑 3 步
-- `reference-impl/scripts/lint_fixtures.py` — 校验 samples 与 Python tests fixture 同源
+- `reference-impl/scripts/mock_server.py` — minimal FastAPI mock returning ideal responses from `samples/`
+- `reference-impl/scripts/validate_quickstart.py` — CLI runner for the 3-step loop
+- `reference-impl/scripts/lint_fixtures.py` — validates samples are consistent with Python test fixtures
 
-客户栈若非 Python，按上述「协议层」方式自行实现即可，无需先跑 Python 版本。
+If your stack is not Python, implement the protocol-level approach above directly; there is no need to run the Python version first.
 
-## AI 应遵守的行为规则
+## AI Behavior Rules
 
-1. 严格按 3 步顺序，不要跳步
-2. `cardToken` 是关键句柄，必须从 Step 1 响应读取，**不要**捏造
-3. 任何一步 `responseCode != "00"` → 立即停止，查 `card-issuing-references/error-codes.md`
-4. 不要假设 `AccountLinkage` 在 MVP 里也要调用——已从最小闭环中移除
-5. **Transaction 类 API**（LoadFund / BalanceInquiry 等）的 URL 在当前 MVP 未确认，需向 Coshine 确认后再对接
+1. Follow the 3-step sequence strictly — do not skip steps
+2. `cardToken` is the critical handle; it must be read from the Step 1 response — **never fabricate it**
+3. On any `responseCode != "00"` → stop immediately and consult `card-issuing-references/error-codes.md`
+4. Do not assume `AccountLinkage` is required in the MVP — it has been removed from the minimum loop
+5. **Transaction APIs** (LoadFund / BalanceInquiry / etc.) have unconfirmed sandbox URLs in the current MVP — confirm with Coshine before integrating
 
-## 参考
+## References
 
-- `card-issuing-auth` — 认证方式
-- `card-issuing-references/public-headers.md` — 9 字段公共头
-- `card-issuing-references/samples/` — 3 个 API 的完整样例
-- `card-issuing-references/endpoints-catalog.md` — 完整端点目录
+- `card-issuing-auth` — authentication setup
+- `card-issuing-references/public-headers.md` — 9-field public body headers
+- `card-issuing-references/samples/` — complete JSON samples for all 3 APIs
+- `card-issuing-references/endpoints-catalog.md` — full endpoint catalog
