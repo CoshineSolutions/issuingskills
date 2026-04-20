@@ -1,0 +1,5 @@
+# Codex-specific metadata (optional for Claude Code / Gemini CLI).
+interface:
+  display_name: "card-issuing-auth"
+policy:
+  allow_implicit_invocation: true

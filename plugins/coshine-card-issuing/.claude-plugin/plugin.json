@@ -1,0 +1,12 @@
+{
+  "name": "coshine-card-issuing",
+  "description": "EastPay card-issuing AI integration skills — 4 language-agnostic skills covering the main router, Bearer-token authentication, the 3-step MVP open-card flow, and a protocol/field/error-code reference knowledge base.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Coshine Software",
+    "email": "devtools@coshine.com"
+  },
+  "homepage": "https://developer.sandbox.efaka.net/docs/skills/",
+  "license": "UNLICENSED",
+  "keywords": ["eastpay", "coshine", "card-issuing", "fintech"]
+}

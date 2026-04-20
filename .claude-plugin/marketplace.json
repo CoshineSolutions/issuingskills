@@ -1,0 +1,27 @@
+{
+  "name": "coshine-plugins",
+  "owner": {
+    "name": "Coshine Software",
+    "email": "devtools@coshine.com"
+  },
+  "metadata": {
+    "description": "Claude Code plugin marketplace for Coshine EastPay APIs — AI-assisted integration skills for card issuing, payment gateway, and related services.",
+    "version": "0.2.0"
+  },
+  "plugins": [
+    {
+      "name": "coshine-card-issuing",
+      "source": "./plugins/coshine-card-issuing",
+      "description": "EastPay card-issuing integration — 4 language-agnostic AI skills: main router, authentication (Bearer + timestamp), 3-step MVP quickstart (CardApplication → CustomerCardInfoInquiry → CardActivation), and a reference knowledge base (public headers, data dictionary, error codes, endpoints catalog, sample JSON).",
+      "version": "0.2.0",
+      "author": {
+        "name": "Coshine Software",
+        "email": "devtools@coshine.com"
+      },
+      "homepage": "https://developer.sandbox.efaka.net/docs/skills/",
+      "license": "UNLICENSED",
+      "keywords": ["eastpay", "coshine", "card-issuing", "payment", "fintech", "mastercard", "visa", "unionpay"],
+      "category": "fintech"
+    }
+  ]
+}

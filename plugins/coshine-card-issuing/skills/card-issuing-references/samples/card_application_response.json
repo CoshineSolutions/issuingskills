@@ -1,0 +1,16 @@
+{
+  "participantId": "100000",
+  "tranBranch": "GTW100000",
+  "tranChnl": "07",
+  "tranDate": "20260420",
+  "tranTime": "143052",
+  "tranId": "TXN20260420143052MVP001",
+  "responseCode": "00",
+  "responseDesc": "Success",
+  "cardApplyNo": "AP20260420000001",
+  "customerId": "CIF20260420MVP01",
+  "cardNumber": "4220000000000001",
+  "cardToken": "MOCK-TOKEN-0000000000000001",
+  "expiryDate": "2904",
+  "CVV2": "123"
+}
