@@ -14,22 +14,17 @@
 | `55` | PIN verification failed | PIN value is incorrect |
 | `99` | Unknown data retrieval error | Record `tranId` and contact Coshine technical support |
 
-## HTTP Status Codes
 
-| Code | Meaning | Troubleshooting guidance |
-|---|---|---|
-| `200` | Success | Check business `responseCode` in the response body |
-| `307` | Temporary Redirect | Re-send request to the URL in the `Location` header using the original method |
-| `400` | Bad Request | Check JSON format, required fields, and enum values; focus on the 9 public header fields |
-| `401` | Unauthorized | `Authorization` header is missing or malformed |
-| `403` | Invalid access token | Bearer token is invalid — request a new token from Coshine |
-| `404` | Not Found | URL path is misspelled or `API_BASE_URL` is wrong |
-| `500` | Internal Server Error | Report to Coshine with `tranId` and request timestamp |
-| `502` | Bad Gateway | Same as above |
+## HTTP and transport failures
 
-## Situations Where AI Should Pause and Ask
+| Result | Check |
+|---|---|
+| 200 | Decrypt managed response, then check business responseCode; only 00 means success. |
+| 400 | Exact profile Content-Type, compact JWE serialization, key/algorithm, flat JSON and required fields. Incompatible ContentType is a pre-decryption failure. |
+| 401 | Bearer header, OAuth expiry/assertion/registered keys. |
+| 403 | Scope, path, IP, participant/branch entitlement and binding readiness; not necessarily an invalid token. |
+| 404 | Assigned API base and exact controller route. |
+| 307 | Verify approved destination before forwarding credentials or replaying any operation. |
+| 500/502/timeout | Preserve sanitized traceId/tranId/time; a write outcome may be unknown. Reconcile before retry. |
 
-1. User has not provided a Bearer token → **do not fabricate one** — direct the user to contact Coshine
-2. User has not provided `participantId` / `tranBranch` → do not submit example values (`100000` / `GTW100000`) as real credentials
-3. Response code `99` → ask the user to provide `tranId` and contact Coshine support
-4. Response code `10` → check whether the user's account has been granted permission for the API by Coshine
+For missing values, draft code with placeholders and request only the missing onboarding data. Never request private keys or tokens in chat. OAuth tokens can be reacquired after correcting expiry; static tokens require the assigned legacy process. Do not fall back from managed access to direct JSON.

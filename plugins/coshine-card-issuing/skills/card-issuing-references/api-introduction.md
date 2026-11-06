@@ -1,48 +1,26 @@
 # API Introduction
 
-## Encoding
+## Profiles and wire encoding
 
-All requests and responses use UTF-8 encoding. Recommended Content-Type:
+Read [authentication](../card-issuing-auth/SKILL.md) before constructing requests.
 
-```
-Content-Type: application/json; charset=UTF-8
-```
-
-## HTTP Request Headers
-
-| Header | Description | Length |
+| Item | Managed HTTP gateway | Explicit legacy direct Channel |
 |---|---|---|
-| `Authorization` | `Bearer <access-token>` — token assigned by Coshine (static long-lived token in sandbox) | ≤64 chars |
-| `timestamp` | Unix timestamp (seconds) at the time the message is sent | ≤15 chars |
-| `Content-Type` | Fixed value: `application/json; charset=UTF-8` | — |
+| Authorization | OAuth2 Bearer access token | Assigned static Bearer token |
+| Content-Type | `application/jose+json` | `application/json; charset=UTF-8` |
+| Body | Raw compact JWE containing flat UTF-8 JSON | Flat UTF-8 JSON |
+| Timestamp | Follow assigned gateway contract; not a substitute for OAuth claims | Unix-seconds `timestamp` HTTP header |
+| Response | Decrypt business JWE; inspect errors before decryption | JSON |
 
-## HTTP Response Headers
+A sandbox hostname does not identify the profile. Do not downgrade between profiles on failure. Business endpoints normally use POST; explicit GET routes such as key discovery are separate.
 
-| Header | Description |
-|---|---|
-| `timestamp` | Unix timestamp (seconds) when the response was generated |
+## Request/response rules
 
-## HTTP Status Codes
-
-| Code | Meaning | Notes |
-|---|---|---|
-| 200 | Success | Always check business `responseCode` in the response body |
-| 307 | Temporary Redirect | Re-send the original request using the URL in the `Location` header |
-| 400 | Bad Request | Invalid parameters / missing required fields / illegal enum value |
-| 401 | Unauthorized | `Authorization` header missing or malformed |
-| 403 | Invalid access token | Bearer token value is invalid |
-| 404 | Not Found | URL path misspelled or `API_BASE_URL` is wrong |
-| 500 | Internal Server Error | Report to Coshine with `tranId` and timestamp |
-| 502 | Bad Gateway | Same as above |
-
-## URL Naming Convention
-
-Sandbox endpoints use **module-prefixed + lowerCamelCase action** paths:
-
-- `/cardmgr/*` — card management (apply, activate, block, close, etc.)
-- `/custmgr/*` — customer management (customer info, card/account inquiry by CIF)
-- `/acctmgr/*` — account management
-- `/paramgr/*` — parameters (PIN public key, drop-down lists, etc.)
-- `/tranmgr/*` — transactions (ISO-8583 messages, etc.)
-
-See `endpoints-catalog.md` for full URL paths.
+- No nested `header`, `body`, `data` or `jwe` wrapper.
+- ES256 signs the OAuth assertion only; encrypt business JSON directly with RSA-OAEP-256/A128GCM.
+- Public fields and API fields occupy the same JSON level. Keep identifiers including cardToken as strings.
+- `participantId`/`tranBranch` select an authorized business context. Customer HTTP requests do not supply internal tenantId/X-Tenant.
+- The endpoint selects tranCode. Do not treat it as a free-form client operation label.
+- HTTP 200 still requires `responseCode="00"` after decryption when applicable.
+- For redirects, verify the destination is the approved service before forwarding credentials or resending a write.
+- On errors record sanitized HTTP/business codes, tranId, X-Trace-Id and time; see [error-codes.md](error-codes.md).

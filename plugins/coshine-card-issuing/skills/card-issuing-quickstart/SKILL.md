@@ -1,111 +1,34 @@
 ---
 name: card-issuing-quickstart
-description: EastPay card-issuing end-to-end minimum integration guide — 3-step card open flow (Application → Inquiry → Activation)
+description: "Use when validating first EastPay connectivity or implementing the minimal application, customer card inquiry and activation flow."
 ---
 
-# EastPay Card Issuing — Quickstart (3-Step Minimum Loop)
+# EastPay Card Issuing — Quickstart
 
-## Prerequisites
+## Prerequisites and first connection
 
-Obtain the following 5 items from Coshine:
+Obtain the assigned API base, authentication profile, participant, allowed branch and product. For managed HTTP, follow [authentication](../card-issuing-auth/SKILL.md) to obtain a token and encrypt/decrypt messages. Historical sample JSON files represent plaintext before encryption, not the managed wire body. Sample product codes and identities are not assigned customer values.
 
-1. `API_BASE_URL` (sandbox: `https://march.sandbox.efaka.net/card-api`)
-2. Bearer Token
-3. `participantId`
-4. `tranBranch`
-5. `cardProdCode` (sandbox common values: Visa=`2201` / Mastercard=`5200`)
+First validate access with an entitled read-only endpoint such as `POST /paramgr/inquiryCardProduct` or `POST /paramgr/inquiryDropdownList`. Use the assigned fields from its schema. Check HTTP status, decrypt if applicable, and require business `responseCode="00"`. An empty product list does not prove product setup is complete. Do not issue cards or move funds merely to test connectivity.
 
-Set up authentication first (see `card-issuing-auth`), then proceed:
+## Minimal card flow
 
-## 3-Step Flow
+| Step | POST path | Input and verification |
+|---|---|---|
+| 1. Apply | `/cardmgr/cardApply` | Public fields plus assigned `cardProdCode`, `cardFlag`, `customerId`, `custIdType`, `custIdNo`; persist returned `cardToken`. Physical-card address/embossing fields and other product requirements are conditional. |
+| 2. Read back | `/custmgr/inquiryCardListByCIF` | Same `customerId`; verify returned `cardList[]` contains the token from step 1. |
+| 3. Activate | `/cardmgr/cardActivate` | Use the returned token and required identity/verification fields from the selected product contract; check success and query actual status. |
 
-```
-Step 1: Apply   (cardApply)             → receive cardToken + expiryDate + CVV2
-Step 2: Inquire (inquiryCardListByCIF)  → verify the new card is visible by customerId
-Step 3: Activate (cardActivate)         → card moves to active state (responseCode="00")
-```
+Historical activation samples use `expiryDate`, `CVV2`, `customerId`, `custIdType`, `custIdNo`. Do not fabricate missing CVV2 or assume every product exposes it. Do not put sensitive response data in logs. Product activation settings govern whether a new card needs activation; do not assert an unconditional N-to-U transition for all products.
 
-### Step 1 · CardApplication
+All business/public fields are flat, before JWE encryption. The [samples](../card-issuing-references/samples/) illustrate the three-step legacy contract; replace identities, dates, products and transaction IDs with actual assigned/current values.
 
-**Path:** `POST {API_BASE_URL}/cardmgr/cardApply`
+## Verification and recovery
 
-**Required fields (virtual card, minimal set):**
+- Stop on non-`00` business results and inspect [errors](../card-issuing-references/error-codes.md).
+- Keep `cardToken` as a string and use the returned value; do not invent one.
+- For ambiguous apply/activation outcomes, reconcile by customer/card inquiry before retrying.
+- Account linkage is conditional on the account model, not universally required in this minimal flow.
+- Balance and funding APIs are separate workflows. See the [endpoint catalog](../card-issuing-references/endpoints-catalog.md) and [onboarding/funding notes](../card-issuing-references/implementation-notes.md); do not infer write permission from a successful inquiry.
 
-| Field | Description |
-|---|---|
-| `cardFlag` | `V` (virtual) or `P` (physical) |
-| `cardProdCode` | Assigned by Coshine |
-| `customerId` | Your customer identifier / CIF (≤32 chars) |
-| `custIdType` | ID document type — see data-dictionary |
-| `custIdNo` | ID document number |
-
-**Key response fields:** `cardToken` (reference handle for all subsequent operations), `expiryDate` (YYMM format), `CVV2`
-
-> Physical cards (`cardFlag=P`) also require `cardEmbossName` and mailing address fields — see `card-issuing-references/endpoints-catalog.md`.
-
-**Samples:** `card-issuing-references/samples/card_application_request.json` / `card_application_response.json`
-
-### Step 2 · CustomerCardInfoInquiry
-
-**Path:** `POST {API_BASE_URL}/custmgr/inquiryCardListByCIF`
-
-**Required:** `customerId` (same value used in Step 1)
-
-**Key response field:** `cardList[]` — assert it contains the `cardToken` from Step 1.
-
-**Purpose:** Validates the read path ("card is retrievable by CIF"); also commonly used to list all cards under a customer.
-
-**Samples:** `card-issuing-references/samples/customer_card_info_inquiry_*.json`
-
-### Step 3 · CardActivation
-
-**Path:** `POST {API_BASE_URL}/cardmgr/cardActivate`
-
-**Required fields:**
-
-| Field | Source |
-|---|---|
-| `cardToken` | Step 1 response |
-| `expiryDate` | Step 1 response |
-| `CVV2` | Step 1 response |
-| `customerId` / `custIdType` / `custIdNo` | Cardholder identity verification |
-
-**Response:** `responseCode == "00"` means activation succeeded; card status transitions from `N` to `U`.
-
-**Samples:** `card-issuing-references/samples/card_activation_*.json`
-
-## Testing Strategy (Protocol-Level, Language-Agnostic)
-
-Use any HTTP client (curl, Postman, or any language's HTTP library) to validate the 3-step loop:
-
-1. **Field-level pre-check (no real credentials):** Assemble 3 request bodies from `card-issuing-references/samples/*_request.json`, add `Authorization: Bearer <any-string>` + `timestamp` header, and send to a mock or stub server. Assert:
-   - Step 1 response contains `cardToken` / `expiryDate` / `CVV2`
-   - Step 2 response `cardList[]` includes the `cardToken` from Step 1
-   - Step 3 response `responseCode == "00"`
-2. **Switch to real sandbox:** Replace `Bearer <TOKEN>`, `participantId`, `tranBranch` with Coshine-assigned values and `API_BASE_URL` with the real base URL. Run the same 3-step sequence. Stop immediately on any `responseCode != "00"` and consult `card-issuing-references/error-codes.md`.
-3. **No language requirement:** Bearer Token + plaintext JSON requires no JWT/JWE computation; any HTTP client works — curl, Postman, httpx/requests, OkHttp, axios, Go net/http, etc.
-
-### Reference Implementation (Python, optional)
-
-This repo ships a **Python reference implementation** for engineering validation only — it is not a protocol requirement:
-
-- `reference-impl/scripts/mock_server.py` — minimal FastAPI mock returning ideal responses from `samples/`
-- `reference-impl/scripts/validate_quickstart.py` — CLI runner for the 3-step loop
-- `reference-impl/scripts/lint_fixtures.py` — validates samples are consistent with Python test fixtures
-
-If your stack is not Python, implement the protocol-level approach above directly; there is no need to run the Python version first.
-
-## AI Behavior Rules
-
-1. Follow the 3-step sequence strictly — do not skip steps
-2. `cardToken` is the critical handle; it must be read from the Step 1 response — **never fabricate it**
-3. On any `responseCode != "00"` → stop immediately and consult `card-issuing-references/error-codes.md`
-4. Do not assume `AccountLinkage` is required in the MVP — it has been removed from the minimum loop
-5. **Transaction APIs** (LoadFund / BalanceInquiry / etc.) have unconfirmed sandbox URLs in the current MVP — confirm with Coshine before integrating
-
-## References
-
-- `card-issuing-auth` — authentication setup
-- `card-issuing-references/public-headers.md` — 9-field public body headers
-- `card-issuing-references/samples/` — complete JSON samples for all 3 APIs
-- `card-issuing-references/endpoints-catalog.md` — full endpoint catalog
+The optional workspace Python mock/client validates the legacy JSON samples only. Managed integration also needs token acquisition, JWE round-trip and entitlement checks against the assigned environment.

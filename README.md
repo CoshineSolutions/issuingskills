@@ -35,8 +35,8 @@ plugins/coshine-card-issuing/
 ├── .claude-plugin/plugin.json               # plugin manifest
 └── skills/
     ├── card-issuing/                        # main router — intent detection
-    ├── card-issuing-auth/                   # Bearer + timestamp auth
-    ├── card-issuing-quickstart/             # 3-step MVP open-card flow
+    ├── card-issuing-auth/                   # OAuth2/JWE and legacy auth
+    ├── card-issuing-quickstart/             # card onboarding and 3-step flow
     └── card-issuing-references/             # protocol knowledge base
         ├── api-introduction.md
         ├── public-headers.md
@@ -49,13 +49,7 @@ scripts/install_skills.sh                    # non-marketplace installer
 
 ## Scope
 
-**MVP (v0.2):** covers the **3-API minimum integration loop** for virtual card issuing:
-
-1. `POST /cardmgr/cardApply` — apply for a card → receive `cardToken`
-2. `POST /custmgr/inquiryCardListByCIF` — look up cards by customer ID
-3. `POST /cardmgr/cardActivate` — activate the card
-
-Later releases will add card lifecycle operations (replacement, cancellation, status updates), transactions (LoadFund, BalanceInquiry), PIN operations, tokens, loyalty, and other API groups (Payment Gateway, Funding Resources, Reconciliation File).
+Version 0.3.0 (2026-11-06) covers managed OAuth2/JWE, explicitly provisioned legacy direct access, participant/branch routing, a read-only connectivity check followed by the three-step card example, and source-confirmed transaction/parameter routes. Funding and workbook notes distinguish implemented capability from deployed entitlement. See the bundled references for details.
 
 ## Feedback
 

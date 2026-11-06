@@ -1,52 +1,28 @@
 ---
 name: card-issuing
-description: EastPay card-issuing integration assistant — detects user intent and routes to the appropriate sub-skill (auth / quickstart / references). Trigger words: EastPay, card issuing, card apply, open card, Coshine
+description: "Use when integrating EastPay/Coshine card issuing, selecting authentication, opening cards, querying balances, or configuring participant access."
 ---
 
 # EastPay Card Issuing — Integration Assistant
 
-## System Overview
+Protocol baseline: 2026-11-06. Choose the assigned environment and access profile before generating requests.
 
-EastPay is Coshine Software's SaaS card-issuing platform, providing:
-
-- Card Issuing API (~58 endpoints across Application / Customer / Account / Card / PIN / Transaction / Token / Loyalty modules)
-- Payment Gateway API
-- Funding Resources API
-- Reconciliation File API
-
-**The current MVP covers only 3 Card Issuing APIs**, forming the minimum end-to-end integration loop.
-
-## Intent Detection and Routing
-
-Route the user to the appropriate sub-skill based on their request:
-
-| User says (examples) | Route to |
+| Request | Read |
 |---|---|
-| "how to authenticate / how to use the token / how to set Authorization" | `card-issuing-auth` |
-| "how to open a card / give me a minimal integration example / quickstart / demo" | `card-issuing-quickstart` |
-| "what are the public header fields / cardStatus enum values / error code meanings" | `card-issuing-references` |
-| "I need to integrate LoadFund / BalanceInquiry / other advanced features" | **Inform user: not in MVP scope** — path to be confirmed with Coshine |
-| "CardReplacement / Cancellation / 3DS / Loyalty" | Same as above — Phase 1 P1 or Phase 2 |
+| OAuth token, ES256, JWE, HTTP 400/401/403 | `../card-issuing-auth/SKILL.md` |
+| First connection, card application, inquiry, activation | `../card-issuing-quickstart/SKILL.md` |
+| Paths, fields, errors, funding, onboarding | `../card-issuing-references/SKILL.md` |
 
-## Key Protocol Facts (always communicate to users)
+The three-step card flow is a minimal example, not the platform's API limit. Balance, deposit, withdrawal and other implemented paths are listed in the endpoint catalog; path existence does not establish customer entitlement or deployment.
 
-1. **Current sandbox auth uses a static Bearer Token** (not OAuth2/JWE); URL pattern is `/cardmgr/cardApply` etc. in lowerCamelCase
-2. **Bearer Token / participantId / tranBranch / cardProdCode are all assigned by Coshine** — do not fabricate values
-3. **MVP loop is exactly 3 APIs**: CardApplication → CustomerCardInfoInquiry → CardActivation
-4. Paths for other APIs must be confirmed directly with Coshine
+## Integration boundaries
 
-## Python Reference Implementation
+- Managed HTTP access uses OAuth2 plus JWE; the old direct sandbox uses static Bearer plus JSON only where explicitly provisioned. Do not downgrade after an authentication failure.
+- The customer supplies assigned `participantId` and `tranBranch`, not internal `tenantId` or `X-Tenant`. An identifier alone is not authentication.
+- Do not invent environment URLs, credentials, participant/branch/product values, scopes or key IDs. Reuse supplied onboarding data; missing values can remain placeholders in code.
+- The separate scheme Card Gateway TCP interface does not acquire the HTTP OAuth/JWE contract. Confirm its configured participant-routing or legacy tenant-routing mode.
+- Treat reviewed source capabilities, configured access, deployed versions and verified operation as distinct evidence.
 
-The `reference-impl/` directory in this repo contains a Python reference implementation:
+## Reference implementation
 
-- `eastpay/` package: `Client` class + 3 endpoint wrappers
-- `scripts/mock_server.py`: minimal mock server for flow validation without real credentials
-- `scripts/validate_quickstart.py`: CLI runner for the 3-step loop
-- `scripts/lint_fixtures.py`: validates samples are consistent with test fixtures
-
-This skill remains **language-agnostic**. The Python implementation is an engineering validation tool only; for other languages, generate code based on the protocol described in these skills.
-
-## Reference Documents
-
-- Developer portal: `https://developer.sandbox.efaka.net`
-- Upstream PDF: `CARD_API_list_Card_v4.3.17.pdf`
+The workspace `reference-impl/` Python client and fixtures illustrate the legacy three-step JSON flow. They are not an OAuth/JWE client and are not required for customers using another language. Package users need only these skills; do not assume the Python project is installed.

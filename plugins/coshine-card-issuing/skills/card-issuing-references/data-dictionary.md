@@ -1,5 +1,8 @@
 # Data Dictionary
 
+These historical enum tables support the sample flow. Confirm endpoint-specific status semantics and product configuration before use. Sample product codes `2201`/`5200` are not universal defaults; query assigned products. Account type, card product type, scheme and currency are separate configuration dimensions.
+
+
 ## cardFlag (Card Type)
 
 | Value | Meaning |
