@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Claude Code plugin marketplace for Coshine EastPay APIs \u2014 AI-assisted integration skills for card issuing, payment gateway, and related services.",
-    "version": "0.3.0"
+    "version": "0.3.1"
   },
   "plugins": [
     {
       "name": "coshine-card-issuing",
       "source": "./plugins/coshine-card-issuing",
       "description": "EastPay managed OAuth2/JWE and legacy profiles, card quickstart, participant and funding references.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "Coshine Software",
         "email": "devtools@coshine.com"

@@ -32,3 +32,5 @@ All business/public fields are flat, before JWE encryption. The [samples](../car
 - Balance and funding APIs are separate workflows. See the [endpoint catalog](../card-issuing-references/endpoints-catalog.md) and [onboarding/funding notes](../card-issuing-references/implementation-notes.md); do not infer write permission from a successful inquiry.
 
 The optional workspace Python mock/client validates the legacy JSON samples only. Managed integration also needs token acquisition, JWE round-trip and entitlement checks against the assigned environment.
+
+For optional activation-code/custom/company fields and physical reissue/replacement schemas, read [upstream field changes](../card-issuing-references/api-field-changes.md). Do not make optional fields mandatory in the minimal flow.

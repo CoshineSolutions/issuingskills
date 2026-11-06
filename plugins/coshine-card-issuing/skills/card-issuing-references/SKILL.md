@@ -11,6 +11,7 @@ Baseline: 2026-11-06. Read only the relevant reference:
 - [public-headers.md](public-headers.md): flat business fields; endpoint-selected transaction code.
 - [endpoints-catalog.md](endpoints-catalog.md): source-confirmed Channel routes and deployment/permission boundaries.
 - [implementation-notes.md](implementation-notes.md): participant routing, institution/product setup, funding and readiness.
+- [api-field-changes.md](api-field-changes.md): application custom fields, physical reissue/replacement, Remote API removal and OTP additions.
 - [data-dictionary.md](data-dictionary.md): historical field enumerations; product values are assigned, not defaults.
 - [error-codes.md](error-codes.md): HTTP, crypto, entitlement and business failures.
 - [samples/](samples/): legacy example JSON, also usable as plaintext input to JWE after replacing example values.

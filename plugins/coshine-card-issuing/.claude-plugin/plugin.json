@@ -1,7 +1,7 @@
 {
   "name": "coshine-card-issuing",
   "description": "EastPay integration skills: managed OAuth2/JWE, explicit legacy access, card quickstart, participant routing and source-confirmed API references.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "Coshine Software",
     "email": "devtools@coshine.com"

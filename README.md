@@ -49,7 +49,7 @@ scripts/install_skills.sh                    # non-marketplace installer
 
 ## Scope
 
-Version 0.3.0 (2026-11-06) covers managed OAuth2/JWE, explicitly provisioned legacy direct access, participant/branch routing, a read-only connectivity check followed by the three-step card example, and source-confirmed transaction/parameter routes. Funding and workbook notes distinguish implemented capability from deployed entitlement. See the bundled references for details.
+Version 0.3.1 (2026-11-06) covers managed OAuth2/JWE, explicitly provisioned legacy direct access, participant/branch routing, a read-only connectivity check followed by the three-step card example, and source-confirmed transaction/parameter routes. Funding and workbook notes distinguish implemented capability from deployed entitlement. See the bundled references for details.
 
 ## Feedback
 
